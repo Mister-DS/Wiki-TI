@@ -1,0 +1,178 @@
+# DNS : Analyse des champs du record SOA et bonnes pratiques
+
+Rédigé par : Dierickx Simon 
+Date de création : 17/05/2025
+
+## Section 1 : Qu'est-ce que le SOA ?
+
+Le SOA (Start Of Authority) est un type d'enregistrement de ressource qui fournit des informations faisant autorité sur une zone DNS. Il contient des informations importantes sur un domaine dont il est responsable.
+
+### Informations fournies par le SOA :
+
+- Adresse mail de l'administrateur
+- Date de la dernière mise à jour du serveur
+- Temps que le serveur doit attendre entre chaque rafraîchissement
+- Et d'autres paramètres critiques pour la gestion de la zone
+
+### Placement d'un record SOA
+
+En règle générale, le SOA se place en haut d'un fichier de zone, et doit être unique dans celle-ci. Il contient différents champs structurés.
+
+### Exemple d'un record SOA (Cloudflare)
+
+| Field | Value | Description |
+|-------|-------|-------------|
+| name | example.com | Nom du domaine de la zone DNS concernée |
+| record type | SOA | Type d'enregistrement DNS (Start of Authority) |
+| MNAME | ns.primaryserver.com | Serveur DNS primaire faisant autorité pour cette zone |
+| RNAME | admin.example.com | Email de l'administrateur (notation sans @ : admin@example.com) |
+| SERIAL | 1111111111 | Numéro de version incrémenté à chaque modification de la zone |
+| REFRESH | 86400 | Intervalle en secondes auquel les serveurs secondaires vérifient les mises à jour |
+| RETRY | 7200 | Intervalle en secondes pour réessayer en cas d'échec de rafraîchissement |
+| EXPIRE | 4000000 | Durée en secondes après laquelle les données sont considérées obsolètes si le serveur primaire est inaccessible |
+| TTL | 11200 | Durée en secondes de mise en cache négative (NXDOMAIN) selon la RFC 2308 |
+
+## Importance du SOA dans la hiérarchie DNS : 
+
+L'enregistrement SOA est essentiel dans la gestion et la propagation d'un DNS efficace. Il coordonne les transferts de zone entre les différents serveurs DNS. Il garantit également la fiabilité et la cohérence sur tous les réseaux. Pour de bonnes performances et une excellente stabilité de votre infrastructure DNS, une bonne mise en place et compréhension du SOA est indispensable.
+
+
+## Représentation du SOA sur le VPS de l'Ephec : 
+
+Notre serveur VPS possède un SOA défini dans notre zone DNS : 
+
+Utilisation de la commande `dig SOA l2-10.ephec-ti.be +short` afin d'obtenir l'enregistrement SOA seulement avec les informations essentielles.
+
+<img width="580" alt="image" src="https://github.com/user-attachments/assets/de47c442-b5b1-4c7b-8391-57a2aa79b22d" />
+
+Utilisation de la commande `dig @8.8.8.8 SOA l2-10.ephec-ti.be` dans le but d'obtenir l'enregistrement SOA mais en utilisant le DNS de Google.
+
+<img width="929" alt="image" src="https://github.com/user-attachments/assets/df25e391-3a7a-4fca-a39c-3739a1014434" />
+
+Plusieurs informations : 
+
+- `Statut : NOERROR` : indique que la requête a bien abouti.
+- `Query: 1, Answer: 1` : Indique qu'il y a eu 1 requête et 1 réponse.
+- `udp: 512` : Taille des paquets UDP.
+- `;; QUESTION SECTION:
+;l2-10.ephec-ti.be. IN SOA` : Questionnement au SOA 
+- `;; ANSWER SECTION:
+l2-10.ephec-ti.be. 3600 IN SOA ns.l2-10.ephec-ti.be. admin.l2-10.ephec-ti.be. 2025040712 3600 1800 604800 86400` : Réponses au SOA. 
+
+On peut également voir l'implémentation du SOA dans notre fichier de zone : 
+
+<img width="513" alt="image" src="https://github.com/user-attachments/assets/d1e08eee-7a0c-4cfd-bc93-1dcaf1fee419" />
+
+
+
+## Section 2 : Bonnes Pratiques
+
+### Pourquoi les bonnes pratiques sont-elles importantes ? 
+
+Tout d'abord, le SOA est un élément essentiel dans notre zone DNS. Une bonne maîtrise et un SOA bien organisé permettent de garantir la performance, la fiabilité et la sécurité de votre zone DNS.
+
+Les bonnes pratiques sont importantes dans différents domaines tels que : 
+
+- **La résilience** : Permet aux services de continuer en cas de panne temporaire.
+- **Les performances** : Un SOA bien configuré assure de grandes performances. 
+- **La cohérence** : Permet aux potentiels serveurs secondaires de rester synchronisés.
+- **La sécurité** : Un SOA bien défini assure une certaine protection contre de potentielles attaques.
+- **Le scaling** : Un SOA correctement configuré facilite l'adaptation dans notre infrastructure DNS sans compromettre les performances.
+- **La maintenabilité** : Si le SOA est standardisé et bien documenté, cela simplifiera la gestion à long terme .
+
+Maintenant, nous allons voir les bonnes pratiques par rapport à chaque champ : 
+
+| Champ | Description | Valeur recommandée |
+|-------|-------------|-------------------|
+| MNAME | Serveur DNS primaire faisant autorité | FQDN du serveur primaire opérationnel |
+| RNAME | Email du responsable technique | Format : admin.example.com (pour admin@example.com, pas d'@ dans le SOA) |
+| SERIAL | Version du fichier de zone | Format : YYYYMMDDnn (année-mois-jour-révision) |
+| REFRESH | Intervalle de vérification des mises à jour | Zones stables : 86400s (24h)<br>Zones dynamiques : 3600-7200s (1-2h) |
+| RETRY | Intervalle de réessaie après échec | 7200s (2h) ou 1/3 du REFRESH |
+| EXPIRE | Durée avant obsolescence des données | 3600000s (1000h ≈ 41 jours) |
+| MINIMUM TTL | Durée de mise en cache négative | 172800s (48h) ou 3600s (1h) pour zones dynamiques |
+
+
+## Exemple de mauvaises pratiques et leurs conséquences
+
+Problème de synchronisation des serveurs secondaires : 
+Si les valeurs _REFRESH_ et _RETRY_ sont trop élevées, la charge sur les serveurs qui sont esclaves pourrait augmenter, ce qui est problématique. 
+
+Problèmes de mise en cache négative : 
+
+Tout d'abord c'est quoi la mise en cache négative ? C'est le processus par lequel un serveur DNS mémorise de manière temporaire les réponses comportant des erreurs afin d'éviter de répéter inutilement des requêtes vouées à l'échec. RFC 2308 : la durée est déterminée par le minimum entre le champ MINIMUM du SOA et le TTL de SOA lui même (https://datatracker.ietf.org/doc/html/rfc2308)
+
+Revenons au problème, le souci de la mise en cache négative, est que les enregistrements supprimés du DNS mettent beaucoup de temps à revenir à un état fonctionnel. Il n'existe pas de moyen pour vider ce cache. 
+
+## Section Bonus : 
+
+## Les enregistrements de ressources DNS
+
+### Définition d'un enregistrement de ressources
+
+Un enregistrement de ressources est une entrée dans un fichier de base de données DNS. Cette entrée contient différentes informations telles que :
+
+- **Nom** : Premier champ dans l'entrée, il ne peut pas être *NULL*. Si le champ est laissé vide, le nom prendra celui de la dernière ressource.
+- **Durée de vie (TTL)** : Spécifie la durée de validité de l'enregistrement dans le cache. S'il n'est pas précisé, il prendra la valeur par défaut.
+- **Classe d'adresse** : Généralement "IN" pour Internet.
+- **Type d'enregistrement** : Définit le type de données (A, CNAME, MX, etc.).
+- **Données spécifiques** : Dépend du type d'enregistrement.
+
+Toutes ces données sont organisées de manière hiérarchique et constituent le système de noms de domaine (DNS).
+
+### Format standard d'un enregistrement de ressource
+
+`{name} {ttl} addr-class type-enregistrement données-spécifiques`
+
+### Types d'enregistrements de ressources courants
+
+| Type d'enregistrement | Description | Exemple |
+|----------------------|-------------|---------|
+| A (Adresse) | Mappe les noms d'hôtes aux adresses IP | `example.com. IN A 192.168.1.1` |
+| CNAME (nom canonique) | Définit un alias d'hôte | `www.example.com. IN CNAME example.com.` |
+| MX (échange de courrier) | Identifie où envoyer le courrier pour un nom de domaine donné | `example.com. IN MX 10 mail.example.com.` |
+| NS (serveur de noms) | Identifie les serveurs de noms pour un domaine | `example.com. IN NS ns1.example.com.` |
+| PTR (Pointeur) | Mappe les adresses IP aux noms d'hôtes | `1.1.168.192.in-addr.arpa. IN PTR example.com.` |
+| SOA (Début d'autorité) | Indique qu'un serveur de noms est la meilleure source d'informations pour les données d'une zone | `example.com. IN SOA ns1.example.com. admin.example.com. (`<br>`2023050101 ; serial`<br>`86400      ; refresh (1 day)`<br>`7200       ; retry (2 hours)`<br>`3600000    ; expire (41 days)`<br>`172800     ; minimum (2 days)`<br>`)` |
+
+## Conclusion 
+
+En conclusion, le SOA est vraiment très utile dans notre zone DNS, car il permet la communication, la synchronisation entre les serveurs, ainsi que la sécurité et la fiabilité. Une bonne compréhension du SOA et la mise en place des bonnes pratiques permet d'avoir de bonnes performances tout en maintenant la stabilité.
+
+## Section 3 : Sources 
+ 
+### Différentes sources utilisées : 
+
+- Claude : Mise en forme de la page après son écriture.
+- https://www.cloudflare.com/learning/dns/dns-records/dns-soa-record/
+- https://fr.wikipedia.org/wiki/SOA_Resource_Record
+- https://techdocs.f5.com/kb/en-us/archived_products/3-dns/manuals/product/3dns4_5ref/3dns_resourcerecs.html
+- https://www.cloudns.net/wiki/article/17/
+- https://bind9.readthedocs.io/en/v9.20.8/
+- https://www.ripe.net/publications/docs/ripe-203/
+
+### Source RFC : 
+
+- RFC 1035 : Document qui défini le format du record SOA (https://www.ietf.org/rfc/rfc1035.txt)
+- RFC 2181 : Clarification des spécifications dns. (https://datatracker.ietf.org/doc/html/rfc2181)
+- RIPE-203 : Fournit les valeurs à utiliser pour les enregistrements SOA. (https://www.ripe.net/publications/docs/ripe-203/)
+- RFC 2308 : Explique comment fonctionne la mise en cache (https://datatracker.ietf.org/doc/html/rfc2308)
+- RFC 1912 : Role, fonction, service pour le mailbox names. (https://fr.wikipedia.org/wiki/SOA_Resource_Record)
+- RFC 1912 : Erreur de configuration & opérationnel DNS. (https://fr.wikipedia.org/wiki/SOA_Resource_Record)
+
+## Annexe : Utilisation de l'IA dans la réalisation de ce travail
+
+Dans ce travail, j'ai utilisé l'IA claude pour différentes raisons que je vais vous décrire : 
+
+#### Structuration du contenu 
+
+- Il m'a aidé dans l'organisation de mes tableaux et des titres github ainsi que la page.
+
+#### Amélioration linguistique
+
+- Il m'a également aidé dans la reformulation de certaines phrases 
+- Correction de la grammaire et de l'orthographe
+
+#### Analyse et synthèse
+
+- Grâce à claude, il m'a permis d'analyser ou corriger ma synthèse afin de proposer de potentielles améliorations. 
