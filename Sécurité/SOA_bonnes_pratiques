@@ -2,40 +2,40 @@
 
 Rédigé par : Dierickx Simon 
 Date de création : 17/05/2025
+Modifié le : 22/05/2025
 
 ## Section 1 : Qu'est-ce que le SOA ?
 
-Le SOA (Start Of Authority) est un type d'enregistrement de ressource qui fournit des informations faisant autorité sur une zone DNS. Il contient des informations importantes sur un domaine dont il est responsable.
+Le SOA (Start Of Authority) est un type d'enregistrement de ressource défini par la RFC 1035 [6] qui fournit des informations faisant autorité sur une zone DNS. Il contient des informations importantes sur un domaine dont il est responsable.
 
 ### Informations fournies par le SOA :
 
-- Adresse mail de l'administrateur
-- Date de la dernière mise à jour du serveur
-- Temps que le serveur doit attendre entre chaque rafraîchissement
-- Et d'autres paramètres critiques pour la gestion de la zone
+- Adresse e-mail de l'administrateur [9]
+- Date de la dernière mise à jour du serveur [6]
+- Temps que le serveur doit attendre entre chaque rafraîchissement [5]
+- Et d'autres paramètres critiques pour la gestion de la zone [6]
 
 ### Placement d'un record SOA
 
-En règle générale, le SOA se place en haut d'un fichier de zone, et doit être unique dans celle-ci. Il contient différents champs structurés.
+En règle générale, le SOA se place en haut d'un fichier de zone, et doit être unique dans celle-ci [6]. Il contient différents champs structurés.
 
 ### Exemple d'un record SOA (Cloudflare)
 
 | Field | Value | Description |
 |-------|-------|-------------|
-| name | example.com | Nom du domaine de la zone DNS concernée |
-| record type | SOA | Type d'enregistrement DNS (Start of Authority) |
-| MNAME | ns.primaryserver.com | Serveur DNS primaire faisant autorité pour cette zone |
-| RNAME | admin.example.com | Email de l'administrateur (notation sans @ : admin@example.com) |
-| SERIAL | 1111111111 | Numéro de version incrémenté à chaque modification de la zone |
-| REFRESH | 86400 | Intervalle en secondes auquel les serveurs secondaires vérifient les mises à jour |
-| RETRY | 7200 | Intervalle en secondes pour réessayer en cas d'échec de rafraîchissement |
-| EXPIRE | 4000000 | Durée en secondes après laquelle les données sont considérées obsolètes si le serveur primaire est inaccessible |
-| TTL | 11200 | Durée en secondes de mise en cache négative (NXDOMAIN) selon la RFC 2308 |
+| name | example.com | Nom du domaine de la zone DNS concernée  |
+| record type | SOA | Type d'enregistrement DNS (Start of Authority)  |
+| MNAME | ns.primaryserver.com | Serveur DNS primaire faisant autorité pour cette zone  |
+| RNAME | admin.example.com | E-mail de l'administrateur (notation sans @ : admin@example.com)  |
+| SERIAL | 1111111111 | Numéro de version incrémenté à chaque modification de la zone  |
+| REFRESH | 86400 | Intervalle en secondes auquel les serveurs secondaires vérifient les mises à jour  |
+| RETRY | 7200 | Intervalle en secondes pour réessayer en cas d'échec de rafraîchissement  |
+| EXPIRE | 4000000 | Durée en secondes après laquelle les données sont considérées obsolètes si le serveur primaire est inaccessible  |
+| TTL | 11200 | Durée en secondes de mise en cache négative (NXDOMAIN) selon la RFC 2308  |
 
 ## Importance du SOA dans la hiérarchie DNS : 
 
-L'enregistrement SOA est essentiel dans la gestion et la propagation d'un DNS efficace. Il coordonne les transferts de zone entre les différents serveurs DNS. Il garantit également la fiabilité et la cohérence sur tous les réseaux. Pour de bonnes performances et une excellente stabilité de votre infrastructure DNS, une bonne mise en place et compréhension du SOA est indispensable.
-
+L'enregistrement SOA est essentiel dans la gestion et la propagation d'un DNS efficace [6]. Il coordonne les transferts de zone entre les différents serveurs DNS [7]. Il garantit également la fiabilité et la cohérence sur tous les réseaux [7]. Pour de bonnes performances et une excellente stabilité de votre infrastructure DNS, une bonne mise en place et une bonne compréhension du SOA est indispensable [4].
 
 ## Représentation du SOA sur le VPS de l'Ephec : 
 
@@ -45,64 +45,187 @@ Utilisation de la commande `dig SOA l2-10.ephec-ti.be +short` afin d'obtenir l'e
 
 <img width="580" alt="image" src="https://github.com/user-attachments/assets/de47c442-b5b1-4c7b-8391-57a2aa79b22d" />
 
-Utilisation de la commande `dig @8.8.8.8 SOA l2-10.ephec-ti.be` dans le but d'obtenir l'enregistrement SOA mais en utilisant le DNS de Google.
+Utilisation de la commande `dig @8.8.8.8 SOA l2-10.ephec-ti.be` dans le but d'obtenir l'enregistrement SOA en utilisant le DNS de Google.
 
 <img width="929" alt="image" src="https://github.com/user-attachments/assets/df25e391-3a7a-4fca-a39c-3739a1014434" />
 
 Plusieurs informations : 
 
 - `Statut : NOERROR` : indique que la requête a bien abouti.
-- `Query: 1, Answer: 1` : Indique qu'il y a eu 1 requête et 1 réponse.
-- `udp: 512` : Taille des paquets UDP.
+- `Query: 1, Answer: 1` : indique qu'il y a eu 1 requête et 1 réponse.
+- `udp: 512` : taille des paquets UDP.
 - `;; QUESTION SECTION:
-;l2-10.ephec-ti.be. IN SOA` : Questionnement au SOA 
+;l2-10.ephec-ti.be. IN SOA` : questionnement au SOA 
 - `;; ANSWER SECTION:
-l2-10.ephec-ti.be. 3600 IN SOA ns.l2-10.ephec-ti.be. admin.l2-10.ephec-ti.be. 2025040712 3600 1800 604800 86400` : Réponses au SOA. 
+l2-10.ephec-ti.be. 3600 IN SOA ns.l2-10.ephec-ti.be. admin.l2-10.ephec-ti.be. 2025040712 3600 1800 604800 86400` : réponses au SOA. 
 
-On peut également voir l'implémentation du SOA dans notre fichier de zone : 
+On peut également voir l'implémentation du SOA dans notre fichier de zone [4] : 
 
 <img width="513" alt="image" src="https://github.com/user-attachments/assets/d1e08eee-7a0c-4cfd-bc93-1dcaf1fee419" />
 
-
-
-## Section 2 : Bonnes Pratiques
+## Section 2 : Bonnes pratiques
 
 ### Pourquoi les bonnes pratiques sont-elles importantes ? 
 
-Tout d'abord, le SOA est un élément essentiel dans notre zone DNS. Une bonne maîtrise et un SOA bien organisé permettent de garantir la performance, la fiabilité et la sécurité de votre zone DNS.
+Tout d'abord, le SOA est un élément essentiel dans notre zone DNS [6]. Une bonne maîtrise et un SOA bien organisé permettent de garantir la performance, la fiabilité et la sécurité de votre zone DNS [9].
 
-Les bonnes pratiques sont importantes dans différents domaines tels que : 
+## Bonnes pratiques par champ SOA
 
-- **La résilience** : Permet aux services de continuer en cas de panne temporaire.
-- **Les performances** : Un SOA bien configuré assure de grandes performances. 
-- **La cohérence** : Permet aux potentiels serveurs secondaires de rester synchronisés.
-- **La sécurité** : Un SOA bien défini assure une certaine protection contre de potentielles attaques.
-- **Le scaling** : Un SOA correctement configuré facilite l'adaptation dans notre infrastructure DNS sans compromettre les performances.
-- **La maintenabilité** : Si le SOA est standardisé et bien documenté, cela simplifiera la gestion à long terme .
+Les bonnes pratiques sont importantes dans différents domaines tels que (utilisé dans le tableau) :
+- **La résilience** : Permet aux services de continuer en cas de panne temporaire [5]
+- **Les performances** : Un SOA bien configuré assure de bonnes performances [5] 
+- **La cohérence** : Permet aux potentiels serveurs secondaires de rester synchronisés [7]
+- **La sécurité** : Un SOA bien défini assure une certaine protection contre de potentielles attaques [9]
+- **Le scaling** : Un SOA correctement configuré facilite l'adaptation de notre infrastructure DNS sans compromettre les performances [4]
+- **La maintenabilité** : Si le SOA est standardisé et bien documenté, cela simplifiera la gestion à long terme [9]
 
-Maintenant, nous allons voir les bonnes pratiques par rapport à chaque champ : 
+Maintenant, nous allons voir les bonnes pratiques par rapport à chaque champ selon les recommandations RIPE [5] :
 
-| Champ | Description | Valeur recommandée |
-|-------|-------------|-------------------|
-| MNAME | Serveur DNS primaire faisant autorité | FQDN du serveur primaire opérationnel |
-| RNAME | Email du responsable technique | Format : admin.example.com (pour admin@example.com, pas d'@ dans le SOA) |
-| SERIAL | Version du fichier de zone | Format : YYYYMMDDnn (année-mois-jour-révision) |
-| REFRESH | Intervalle de vérification des mises à jour | Zones stables : 86400s (24h)<br>Zones dynamiques : 3600-7200s (1-2h) |
-| RETRY | Intervalle de réessaie après échec | 7200s (2h) ou 1/3 du REFRESH |
-| EXPIRE | Durée avant obsolescence des données | 3600000s (1000h ≈ 41 jours) |
-| MINIMUM TTL | Durée de mise en cache négative | 172800s (48h) ou 3600s (1h) pour zones dynamiques |
-
+| Champ | Valeur recommandée | Pourquoi le faire | Exemple concret | Risques si mal configuré |
+|-------|-------------------|-------------------|-----------------|-------------------------|
+| **MNAME** | FQDN du serveur primaire opérationnel et accessible [5] | **Sécurité & Maintenabilité** : Identifie clairement l'autorité et permet les transferts de zone [9] | `ns1.example.com.` plutôt qu'une IP ou nom inexistant | **Cohérence compromise** : Transferts de zone échouent, confusion hiérarchique, serveurs secondaires non synchronisés |
+| **RNAME** | Format DNS : `admin.example.com.` (sans @) [9] | **Sécurité & Maintenabilité** : Contact rapide en cas d'incident critique [9] | `admin.ephec-ti.be.` pour admin@ephec-ti.be | **Sécurité critique** : Impossible de contacter l'admin lors d'attaques DNS ou de pannes |
+| **SERIAL** | Format YYYYMMDDnn incrémentation après chaque modification de fichier obligatoire [5] | **Cohérence absolue** : Assure la synchronisation des serveurs [7] | `2025052201` (22 mai 2025, version 01) | **Cohérence brisée** : Serveurs secondaires ignorent totalement les mises à jour |
+| **REFRESH** | **Zones stables** : 86400s (24h)<br>**Zones dynamiques** : 3600-7200s (1-2h) [5] | **Performances & Résilience** : Équilibre optimal charge/fraîcheur des données [5] | Zone corporate : 24h<br>Zone e-commerce : 2h | **Performances dégradées** : Trop court = surcharge serveur, trop long = données obsolètes |
+| **RETRY** | 7200s (2h) ou 1/3 du REFRESH minimum [5] | **Résilience garantie** : Récupération rapide après incident réseau [5] | Si REFRESH = 6h → RETRY = 2h maximum | **Résilience compromise** : Service DNS dégradé prolongé même après résolution d'incident |
+| **EXPIRE** | **Minimum** : 1209600s (14 jours)<br>**Recommandé** : 3600000s (≈42 jours) [5] | **Résilience ultime** : Continuité de service même si serveur primaire inaccessible [5] | 42 jours de grâce si serveur primaire en panne totale | **Résilience catastrophique** : Perte complète de résolution DNS si serveur primaire down trop longtemps |
+| **MINIMUM TTL** | **Zones stables** : 172800s (48h)<br>**Zones fréquemment mises à jour** : 3600s (1h) [5] | **Performances & Scaling** : Réduit drastiquement la charge serveur [8] | 48h de cache pour réponses NXDOMAIN sur zones stables | **Scaling problématique** : Surcharge due aux requêtes répétées d'enregistrements inexistants |
 
 ## Exemple de mauvaises pratiques et leurs conséquences
 
-Problème de synchronisation des serveurs secondaires : 
-Si les valeurs _REFRESH_ et _RETRY_ sont trop élevées, la charge sur les serveurs qui sont esclaves pourrait augmenter, ce qui est problématique. 
+**MNAME avec des adresses IP au lieu de FQDN** [9] 
+- **Exemple :** `MNAME 192.168.1.10` au lieu de `ns1.ephec-ti.be`
+- **Conséquence :** Les serveurs secondaire, ne pourront pas résoudre l'aurotité, il y aura un échec des transferts de zones et une confusion dans la hiérarchie DNS (Ils ne sauront plus qui est le primaire parmis tous les serveurs).
 
-Problèmes de mise en cache négative : 
+**RNAME avec le format email classique**
+- **Exemple :** `admin@ephec-ti.be` à la place de `admin.ephec-ti.be`
+- **Conséquence :** Selon la RFC le format est invalide, les outils de monitoring pourraient ne pas reconnaitre le contact et donc l'impossibilité de joindre l'administrateur lors d'incidents de sécurité.
 
-Tout d'abord c'est quoi la mise en cache négative ? C'est le processus par lequel un serveur DNS mémorise de manière temporaire les réponses comportant des erreurs afin d'éviter de répéter inutilement des requêtes vouées à l'échec. RFC 2308 : la durée est déterminée par le minimum entre le champ MINIMUM du SOA et le TTL de SOA lui même (https://datatracker.ietf.org/doc/html/rfc2308)
+**SERIAL jamais incrémenté**
+- **Exemple :** Garder le SERIAL 2025010101 durant des mois malgré les modifications
+- **Conséquence :** Les serveurs ne détectent pas de changement et se pense synchronisé. Les changements ne sont pas appliqués et les zones sont désynchronisées, il existe donc des incohérences DNS permanentes.
 
-Revenons au problème, le souci de la mise en cache négative, est que les enregistrements supprimés du DNS mettent beaucoup de temps à revenir à un état fonctionnel. Il n'existe pas de moyen pour vider ce cache. 
+**REFRESH trop élevé pour une zone dynamique**
+- **Exemple :** `REFRESH 604800 (7 jours)` pour un site d'e-commerce
+- **Conséquence :** Les changements d'IP metteront une semaine à se propager, la perte de client est fortement envisageable du à la durée trop longue et donc la perte de revenu également.  
+
+**RETRY trop court**
+- **Exemple :** `RETRY 60 (1 minute)` avec un `REFESH 3600 (1 heure)`
+- **Conséquence :** En cas de panne sur le serveur primaire, les serveurs secondaires vont envoyé des requêtes constantes toutes les minutes et vont donc surchargé le réseau.
+
+**EXPIRE trop court également**
+- **Exemple :** `EXPIRE 86400 (24h)` au lieu de 41 jours
+- **Conséquence :** Si le serveur primaire tombe en panne durant 24 heures, le domaine deviendra complètement innacessible.
+
+**MINIMUM TTL trop élevé**
+- **Exemple :** `MINIMUM TTL 604800 (7 jours)`
+- **Conséquence :** Un enregistrement peut être supprimé par une erreur d'inaccessibilité durant 7 jours sans avoir de moyen pour vider la cache.
+
+La mise en cache négative, c'est le processus par lequel un serveur DNS mémorise temporairement des réponses d'erreur pour éviter de répéter des requêtes qui n'aboutiront pas.  La durée est déterminée par le minimum entre le champ `MINIMUM` du SOA et le `TTL` du SOA lui-même.
+
+## Section sur la sécurité :
+
+### Quelles sont les différentes menaces pour le DNS : 
+
+**DNS Spoofing [10] :** C'est une attaque qui est de type `Man in the Middle` c'est à dire que l'attaquant intercepte un message et à la place de renvoyé le message, il introduit un virus, ou autre chose et c'est le fait de renvoyé une fausse réponse à une requête. 
+
+--> Pour se protéger, il faut mettre à jour les serveurs DNS , configurer le DNS pour qu'il résolve directement les noms des machines, limiter le cache et le vérifier, ne pas baser de systèmes d'authentifications par le nom de domaine.
+
+**ID Spoofing [11]:** Le but de cette attaque est de s'insérer entre le client et son résolveur. l'attaquant va alors envoyé une fausse réponse DNS en redirigeant le client sur des sites malveillants. Pour celà, l'attquant doit juste intercepté le champ `ID` dans l'entête de la requête. Après ça, il pourra envoyé des réponses falcifiée au client en se faisant passer pour le résolveur.
+
+--> Pour se protéger, il suffit d'utilise des `ID` non prédictibles et d'utiliser un mécanisme de vérification d'authenticité des informations contenues dans le Record DNS grâce au DNSSEC.
+
+**Cache Poisoning [11]:** L'attaque de cache poisoning consiste à injecter de fausses informations sur le résolveur directement. Comme les résolveurs utilisent des caches d'informations, pour économiser sur le trafic, pouvoir compromettre les informations dans la cache, permet d'amplifier l'attaque car ça ne va pas atteindre qu'un seul client mais potentiellement plusieurs.
+
+--> Pour se protéger contre cette attaque, il faut s'assurer que le résolveur ne répondent qu'aux requêtes de clients internes, garder le logiciel à jours pour combler les failles de sécurité. Mettre en place, un système pour vérifier l'authenticité des informations dans le RECORD (DNSSEC)
+
+**SOA et délégation DNS** 
+Référence : https://vvandenschrieck.github.io/syllabus-admin-I/3-couche-applicative/3.2.%20Le%20DNS.html [4]
+
+Le SOA joue un rôle crucial dans la délégation de zones. Lorsqu'un parent dékègue une zone à un sous domaine, certaines interactions souvent critiques se produisent.
+
+**Exemple :** `ephec.be` délègue vers `l2-10.ephec-ti.be`
+
+Que se passe-t-il ? 
+- Le SOA de `ephec.be` contient un enregistrement NS qui pointe vers `ns.l2-10.ephec-ti.be`
+- Le SOA de `ns.l2-10.ephec-ti.be` définit son autorité avec un MNAME : `ns.l2-10.ephec-ti.be`
+- Le SERIAL de notre SOA assure que les changement dans la sous-zone, seront propagés indépendamment de la zone parente.
+
+Quels sont les impacts des valeurs SOA : 
+- REFRESH trop élevé, le changement ne se propagent pas asser rapidement.
+- EXPIRE mal configuré, risque de perte totale d'autorité sir le serveur primaire de la zone devient innacessible.
+
+**SOA et transferts de zone sécurisés**
+référence : https://epheclln.github.io/admin-II/th%C3%A9orie/5.3.%20S%C3%A9curisation%20du%20DNS.html [11]
+
+Le SOA est au coeur de cette sécurisation via la limitation de transfert de zone car il permet la séparation entre les zones publiques et internes. 
+Pour limiter le transfert de zone, on peut entrer de manière spécifique les ip ou la zone qui est autorisé : 
+
+- `allow-transfer { none; };` Refuse tous les transferts
+- `allow-transfer { 
+        192.168.0.0/16;   # Réseau interne complet
+        10.0.0.0/8;       # Réseau privé
+        localhost;        # Machine locale
+    };` Autorise tout le réseau interne
+- `allow-transfer { 
+        key zone-transfer-key;
+    };` Autorise les authentifications par clé TSIG
+
+C'est quoi un clé TSIG [12] : 
+Une clé TSIG est une form d'authentification pour les mise à jours dynamique des bases de données DNS. Cette clé, décrite dans le RFC 2845 ([Link](https://datatracker.ietf.org/doc/html/rfc2845)) utilise un [secret partagé](https://fr.wikipedia.org/wiki/Secret_partag%C3%A9) et une fonction de [hachage cryptographique](https://fr.wikipedia.org/wiki/Fonction_de_hachage_cryptographique) unidirectionnelle, pour apporter une forme d'authentification de sécurité.
+
+Voici notre `named.conf` : 
+
+![image](https://github.com/user-attachments/assets/51a0b0cd-6107-409c-b1e6-9caed96ea9be)
+
+On peut voir sur cette photo que certains éléments de sécurité sont présents. 
+
+- `DNSSEC` qui est une clé cryptographique asymétrique permettant le chiffrement et la signature. Notre zone peut donc être authentifié sans soucis.
+- `allow-transfer { none }` Qui est un sécurité empêchant les transferts non-autorisés.
+- `/etc/bind/zone/l2-10.zone` Qui prouve l'utilisation et la configuration de bind dans notre zone 
+
+Améliroations possibles (selon claude): 
+
+- `allow-update { none; }` Permet de faire des mises à jours seulement manuellement.
+- `inline-signing yes;` Avoir un DNSSEC automatique et déjà configuré
+
+Voici un bind correctement configuré selon claude : 
+
+`# /etc/named.conf
+options {
+    directory "/var/named";
+    listen-on { 127.0.0.1; 10.0.0.1; };
+    allow-query { localhost; 10.0.0.0/24; };
+    recursion no;
+    version "hidden";
+    rate-limit { responses-per-second 10; };
+    dnssec-validation auto;
+};`
+
+
+**SOA face aux menace DNS**
+Références : https://epheclln.github.io/admin-II/th%C3%A9orie/5.2.%20Menaces%20contre%20le%20DNS.html [11]
+
+Dans le cour 3 menaces sont clairement identifiées auxquelles le SOA doit faire face.
+_Protection contre le DNS spoofing & cache poisoning_
+
+La problématique est que les attaques de type `Man in the middle` tentent d'injecter de fausses informations DNS. Le role du SOA est : 
+- D'incrémenter le SERIAL pour détecter des modifications non autorisées
+- Optimiser la durée de cache des informations potentiellements compromise via un TTL
+- Contacter rapidement l'admin avec un RNAME valide.
+
+_Résistance au attaques DoS_
+
+Pour résister à des attaques de déni de service, c'est à dire rendre un service injoignable dû à un nombre de requêtes gigantesque en peu de temps. 
+- le SOA doit utiliser un REFRESH de 3600secondes afin d'éviter les surcharges sur les serveurs secondaires.
+- Le SOA doit utilisé un EXPIRE prolongé et assurer la continuité de ses services même si le serveur primaire est inaccessible.
+
+_Prévention au DNS Tunneling_
+
+Le DNS tunneling est un moyen d'envoyé de fausses données en utilisant le canal que le DNS utilise pour transférer ses infos en passant les firewall. 
+- Le SOA  doit surveiller les patterns et détecter de potentiels paterns anormaux basé sur le SERIAL.
+- Avoir un contrôle strict sur les entrées et sorties tout en limitant les requêtes selon la configuration de l'autorité.
+
 
 ## Section Bonus : 
 
@@ -110,69 +233,62 @@ Revenons au problème, le souci de la mise en cache négative, est que les enreg
 
 ### Définition d'un enregistrement de ressources
 
-Un enregistrement de ressources est une entrée dans un fichier de base de données DNS. Cette entrée contient différentes informations telles que :
+Un enregistrement de ressources est une entrée dans un fichier de base de données DNS [6]. Cette entrée contient différentes informations telles que :
 
-- **Nom** : Premier champ dans l'entrée, il ne peut pas être *NULL*. Si le champ est laissé vide, le nom prendra celui de la dernière ressource.
-- **Durée de vie (TTL)** : Spécifie la durée de validité de l'enregistrement dans le cache. S'il n'est pas précisé, il prendra la valeur par défaut.
-- **Classe d'adresse** : Généralement "IN" pour Internet.
-- **Type d'enregistrement** : Définit le type de données (A, CNAME, MX, etc.).
-- **Données spécifiques** : Dépend du type d'enregistrement.
+- **Nom** : Premier champ dans l'entrée, il ne peut pas être *NULL* . Si le champ est laissé vide, le nom prendra celui de la dernière ressource.
+- **Durée de vie (TTL)** : Spécifie la durée de validité de l'enregistrement dans le cache . S'il n'est pas précisé, il prendra la valeur par défaut.
+- **Classe d'adresse** : Généralement "IN" pour Internet .
+- **Type d'enregistrement** : Définit le type de données (A, CNAME, MX, etc.) .
+- **Données spécifiques** : Dépend du type d'enregistrement .
 
-Toutes ces données sont organisées de manière hiérarchique et constituent le système de noms de domaine (DNS).
+Toutes ces données sont organisées de manière hiérarchique et constituent le système de noms de domaine (DNS) [6].
 
 ### Format standard d'un enregistrement de ressource
 
-`{name} {ttl} addr-class type-enregistrement données-spécifiques`
+`{name} {ttl} addr-class type-enregistrement données-spécifiques` [6]
 
 ### Types d'enregistrements de ressources courants
 
 | Type d'enregistrement | Description | Exemple |
 |----------------------|-------------|---------|
-| A (Adresse) | Mappe les noms d'hôtes aux adresses IP | `example.com. IN A 192.168.1.1` |
+| A (Adresse) | Mappe les noms d'hôtes aux adresses IP  | `example.com. IN A 192.168.1.1` |
 | CNAME (nom canonique) | Définit un alias d'hôte | `www.example.com. IN CNAME example.com.` |
 | MX (échange de courrier) | Identifie où envoyer le courrier pour un nom de domaine donné | `example.com. IN MX 10 mail.example.com.` |
-| NS (serveur de noms) | Identifie les serveurs de noms pour un domaine | `example.com. IN NS ns1.example.com.` |
-| PTR (Pointeur) | Mappe les adresses IP aux noms d'hôtes | `1.1.168.192.in-addr.arpa. IN PTR example.com.` |
-| SOA (Début d'autorité) | Indique qu'un serveur de noms est la meilleure source d'informations pour les données d'une zone | `example.com. IN SOA ns1.example.com. admin.example.com. (`<br>`2023050101 ; serial`<br>`86400      ; refresh (1 day)`<br>`7200       ; retry (2 hours)`<br>`3600000    ; expire (41 days)`<br>`172800     ; minimum (2 days)`<br>`)` |
+| NS (serveur de noms) | Identifie les serveurs de noms pour un domaine  | `example.com. IN NS ns1.example.com.` |
+| PTR (Pointeur) | Mappe les adresses IP aux noms d'hôtes  | `1.1.168.192.in-addr.arpa. IN PTR example.com.` |
+| SOA (Début d'autorité) | Indique qu'un serveur de noms est la meilleure source d'informations pour les données d'une zone  | `example.com. IN SOA ns1.example.com. admin.example.com. (`<br>`2023050101 ; serial`<br>`86400      ; refresh (1 day)`<br>`7200       ; retry (2 hours)`<br>`3600000    ; expire (41 days)`<br>`172800     ; minimum (2 days)`<br>`)` |
 
 ## Conclusion 
 
-En conclusion, le SOA est vraiment très utile dans notre zone DNS, car il permet la communication, la synchronisation entre les serveurs, ainsi que la sécurité et la fiabilité. Une bonne compréhension du SOA et la mise en place des bonnes pratiques permet d'avoir de bonnes performances tout en maintenant la stabilité.
+En conclusion, le SOA est vraiment très utile dans notre zone DNS, car il permet la communication, la synchronisation entre les serveurs [7], ainsi que la sécurité et la fiabilité [9]. Une bonne compréhension du SOA et la mise en place des bonnes pratiques [5] permet d'avoir de bonnes performances tout en maintenant la stabilité [4].
 
-## Section 3 : Sources 
- 
-### Différentes sources utilisées : 
+[1] ANTHROPIC. (2024). *Claude AI Assistant* (Version 3.7 Sonnet). Intelligence artificielle générative. Anthropic. Consulté le 17 mai 2025. Disponible sur : https://claude.ai
 
-- Claude : Mise en forme de la page après son écriture.
-- https://www.cloudflare.com/learning/dns/dns-records/dns-soa-record/
-- https://fr.wikipedia.org/wiki/SOA_Resource_Record
-- https://techdocs.f5.com/kb/en-us/archived_products/3-dns/manuals/product/3dns4_5ref/3dns_resourcerecs.html
-- https://www.cloudns.net/wiki/article/17/
-- https://bind9.readthedocs.io/en/v9.20.8/
-- https://www.ripe.net/publications/docs/ripe-203/
+[2] CLOUDFLARE INC. (2024). *DNS SOA record*. Cloudflare Learning Center. Consulté le 17 mai 2025. Disponible sur : https://www.cloudflare.com/learning/dns/dns-records/dns-soa-record
 
-### Source RFC : 
+[3] CONTRIBUTEURS WIKIPÉDIA. (2024, 15 mars). *SOA Resource Record*. Dans *Wikipédia, l'encyclopédie libre*. Wikimedia Foundation. Consulté le 17 mai 2025. Disponible sur : https://fr.wikipedia.org/wiki/SOA_Resource_Record
 
-- RFC 1035 : Document qui défini le format du record SOA (https://www.ietf.org/rfc/rfc1035.txt)
-- RFC 2181 : Clarification des spécifications dns. (https://datatracker.ietf.org/doc/html/rfc2181)
-- RIPE-203 : Fournit les valeurs à utiliser pour les enregistrements SOA. (https://www.ripe.net/publications/docs/ripe-203/)
-- RFC 2308 : Explique comment fonctionne la mise en cache (https://datatracker.ietf.org/doc/html/rfc2308)
-- RFC 1912 : Role, fonction, service pour le mailbox names. (https://fr.wikipedia.org/wiki/SOA_Resource_Record)
-- RFC 1912 : Erreur de configuration & opérationnel DNS. (https://fr.wikipedia.org/wiki/SOA_Resource_Record)
+[4] INTERNET SYSTEMS CONSORTIUM. (2024). *BIND 9 Administrator Reference Manual - Chapter 3: Configuration Reference*. Version 9.20.8. Internet Systems Consortium. Consulté le 17 mai 2025. Disponible sur : https://bind9.readthedocs.io
 
-## Annexe : Utilisation de l'IA dans la réalisation de ce travail
+[5] RÉSEAUX IP EUROPÉENS (RIPE). (1994). *Recommended values to be used in the SOA Resource Record*. Document technique RIPE-203. RIPE Network Coordination Centre. Consulté le 17 mai 2025. Disponible sur : https://www.ripe.net/publications/docs/ripe-203
 
-Dans ce travail, j'ai utilisé l'IA claude pour différentes raisons que je vais vous décrire : 
+[6] MOCKAPETRIS, P. (1987). *Domain names - implementation and specification*. RFC 1035. Internet Engineering Task Force. DOI: 10.17487/RFC1035
 
-#### Structuration du contenu 
+[7] ELZ, R. et BUSH, R. (1997). *Clarifications to the DNS Specification*. RFC 2181. Internet Engineering Task Force. DOI: 10.17487/RFC2181
 
-- Il m'a aidé dans l'organisation de mes tableaux et des titres github ainsi que la page.
+[8] ANDREWS, M., HUSTON, G., KARRENBERG, D., MANNING, B. et VIXIE, P. (1998). *Negative Caching of DNS Queries (DNS NCACHE)*. RFC 2308. Internet Engineering Task Force. DOI: 10.17487/RFC2308
 
-#### Amélioration linguistique
+[9] BARR, D. (1996). *Common DNS Operational and Configuration Errors*. RFC 1912. Internet Engineering Task Force. DOI: 10.17487/RFC1912
 
-- Il m'a également aidé dans la reformulation de certaines phrases 
-- Correction de la grammaire et de l'orthographe
+[10] VALGASU. (2001). *Le DNS Spoofing : Comment ça marche et comment se protéger ?* SecuriteInfo.com. Consulté le 17 mai 2025. Disponible sur : https://www.securiteinfo.com/attaques/hacking/dnsspoofing.shtml
 
-#### Analyse et synthèse
+[11] VAN DEN SCHRIEK, V. (s.d.). *Menaces contre le DNS*. Cours d'Administration Système II. École Pratique des Hautes Études Commerciales (EPHEC). Consulté le 22 mai 2025. Disponible sur : https://epheclln.github.io/admin-II
 
-- Grâce à claude, il m'a permis d'analyser ou corriger ma synthèse afin de proposer de potentielles améliorations. 
+[12] Wikipédia, (2001) *TSIG*. 
+Consulté le 22 mai 2025. Disponible : https://fr.wikipedia.org/wiki/TSIG
+
+---
+
+**Note sur l'utilisation d'outils d'intelligence artificielle :**
+
+*L'outil d'IA Claude [1] a été utilisé pour l'assistance à la structuration du contenu, l'amélioration linguistique et l'analyse de synthèse afin de me proposer de potentielles améliorations.*
